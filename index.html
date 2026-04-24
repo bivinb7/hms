@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<body style="font-family: Arial; background:#8FAFC0; margin:0;">
+
+<h1 style="
+text-align:center;
+font-size:32px;
+letter-spacing:1px;
+color:#2c3e50;
+margin-top:20px;
+margin-bottom:10px;
+">
+Hospital Management System
+</h1>
+
+<div style="
+width:500px;
+height:4px;
+background:#5F7F99;
+margin:0 auto 20px auto;
+border-radius:5px;
+"></div>
+
+<div style="display:flex; justify-content:center; gap:25px;">
+
+  <!-- LEFT -->
+  <div style="width:40%;">
+
+    <div style="background:#E6D5C3; padding:20px; margin-bottom:20px; border-radius:10px;">
+      <h3>Add Patient</h3>
+      <input style="width:90%; padding:8px; border-radius:5px; border:1px solid #ccc;" id="id" placeholder="ID"><br><br>
+      <input style="width:90%; padding:8px; border-radius:5px; border:1px solid #ccc;" id="name" placeholder="Name"><br><br>
+      <input style="width:90%; padding:8px; border-radius:5px; border:1px solid #ccc;" id="age" placeholder="Age"><br><br>
+      <button style="background:#5F7F99; color:white; border:none; padding:10px 15px; border-radius:5px; cursor:pointer;"
+onmouseover="this.style.opacity=0.8"
+onmouseout="this.style.opacity=1" onclick="add()">Add Patient</button>
+    </div>
+
+    <div style="background:#E6D5C3; padding:20px; border-radius:10px;">
+      <h3>Book Appointment</h3>
+      <input style="width:90%; padding:8px; border-radius:5px; border:1px solid #ccc;" id="pid" placeholder="Patient ID"><br><br>
+      <input style="width:90%; padding:8px; border-radius:5px; border:1px solid #ccc;" id="did" placeholder="Doctor ID"><br><br>
+      <input style="width:90%; padding:8px; border-radius:5px; border:1px solid #ccc;" id="date" type="date"><br><br>
+      <button style="background:#5F7F99; color:white; border:none; padding:10px 15px; border-radius:5px; cursor:pointer;"
+onmouseover="this.style.opacity=0.8"
+onmouseout="this.style.opacity=1" onclick="book()">Book Appointment</button>
+    </div>
+
+  </div>
+
+  <!-- RIGHT -->
+  <div style="width:40%; background:#D4C4B0; padding:20px; border-radius:10px;">
+
+    <h3 >Data</h3>
+
+    <button style="background:#5F7F99; color:white; border:none; padding:10px 15px; border-radius:5px; cursor:pointer;"
+onmouseover="this.style.opacity=0.8"
+onmouseout="this.style.opacity=1" onclick="load()">Patients</button>
+    <button style="background:#5F7F99; color:white; border:none; padding:10px 15px; border-radius:5px; cursor:pointer;"
+onmouseover="this.style.opacity=0.8"
+onmouseout="this.style.opacity=1" onclick="showDoctors()">Doctors</button>
+    <button style="background:#5F7F99; color:white; border:none; padding:10px 15px; border-radius:5px; cursor:pointer;"
+onmouseover="this.style.opacity=0.8"
+onmouseout="this.style.opacity=1" onclick="showFull()">Appointments</button>
+
+    <ul id="list" style="list-style:none; padding:0; margin-top:20px; line-height:1.8;"></ul>
+
+  </div>
+
+</div>
+
+<script>
+function add() {
+  fetch('http://localhost:3000/add', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      id: document.getElementById('id').value,
+      name: document.getElementById('name').value,
+      age: document.getElementById('age').value
+    })
+  });
+}
+
+function load() {
+  fetch('http://localhost:3000/patients')
+  .then(res => res.json())
+  .then(data => {
+    let list = document.getElementById('list');
+    list.innerHTML = "";
+    data.forEach(p => {
+      list.innerHTML += `
+      <li>
+        ${p.id} - ${p.name} - ${p.age}
+        <button style="background:#e74c3c; color:white; border:none; padding:4px 8px; border-radius:5px; cursor:pointer;" onclick="del(${p.id})">Delete</button>
+      </li>`;
+    });
+  });
+}
+
+function del(id) {
+  fetch('http://localhost:3000/delete/' + id, {
+    method: 'DELETE'
+  }).then(() => load());
+}
+
+function book() {
+  fetch('http://localhost:3000/appointment', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      patient_id: pid.value,
+      doctor_id: did.value,
+      date: date.value
+    })
+  });
+}
+
+function showFull() {
+  fetch('http://localhost:3000/full')
+  .then(res => res.json())
+  .then(data => {
+    list.innerHTML = "";
+    data.forEach(x => {
+      list.innerHTML += `<li>${x.patient} → ${x.doctor} (${x.date})</li>`;
+    });
+  });
+}
+
+function showDoctors() {
+  fetch('http://localhost:3000/doctors')
+  .then(res => res.json())
+  .then(data => {
+    let list = document.getElementById('list');
+    list.innerHTML = "";
+    data.forEach(d => {
+      list.innerHTML += `<li>${d.id} - ${d.name}</li>`;
+    });
+  });
+}
+</script>
+
+</body>
+</html>
